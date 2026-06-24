@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Monitor Setup</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'system';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else if (savedTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="/static/setup.css">
+</head>
+
+<body>
+    <main class="container">
+        <div class="card">
+            <div
+                style="text-align: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--muted-border-color); padding-bottom: 1rem;">
+                <div style="font-weight: bold; font-size: 1.3rem; letter-spacing: 1.5px; color: var(--primary);">TRAFFIC
+                     MONITOR</div>
+                <div
+                    style="font-size: 0.85rem; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px;">
+                    by KoKa</div>
+            </div>
+            <div class="header-container">
+                <h1 id="title-main" style="margin-bottom: 0;">🚀 Setup Wizard</h1>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select id="theme-select"
+                        style="width: auto; min-width: 8.5rem; margin-bottom: 0; padding: 0.2rem 1.5rem;">
+                        <option value="system">🌓 System</option>
+                        <option value="light">☀️ Light</option>
+                        <option value="dark">🌙 Dark</option>
+                    </select>
+                    <select id="lang-select" style="width: auto; margin-bottom: 0; padding: 0.2rem 1.5rem;">
+                        <option value="en" selected>English</option>
+                        <option value="ru">Русский</option>
+                        <option value="uk">Українська</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 1: Discover Devices -->
+            <div id="step-1" class="step active">
+                <h3 id="step1-title">Step 1: Router Discovery</h3>
+                <p id="step1-desc">Searching for UPnP-enabled gateway devices in your local network...</p>
+                <button id="btn-discover" aria-busy="false">Discover Devices</button>
+                <div id="device-list" style="margin-top: 1rem;"></div>
+            </div>
+
+            <!-- Step 2: Select Service & Actions -->
+            <div id="step-2" class="step">
+                <h3 id="step2-title">Step 2: Monitoring Settings</h3>
+                <p id="step2-desc">Select the service that outputs statistics and specify action methods.</p>
+                <select id="service-select" required>
+                    <option value="" selected disabled id="service-placeholder">Select service...</option>
+                </select>
+                <div id="actions-info" style="margin-bottom: 1rem;"></div>
+
+                <div class="grid">
+                    <div>
+                        <label for="action-recv" id="label-recv">Action for Received Traffic</label>
+                        <select id="action-recv" required></select>
+                    </div>
+                    <div>
+                        <label for="action-sent" id="label-sent">Action for Sent Traffic</label>
+                        <select id="action-sent" required></select>
+                    </div>
+                </div>
+                <button id="btn-step2-next" style="margin-top: 1rem;">Next</button>
+            </div>
+
+            <!-- Step 3: Telegram Bot -->
+            <div id="step-3" class="step">
+                <h3 id="step3-title">Step 3: Telegram Setup</h3>
+                <p id="step3-desc">Enter your Telegram bot token (you can get one from @BotFather).</p>
+                <input type="text" id="bot-token" placeholder="123456789:ABCdefGHIjkl..." required>
+
+                <p id="step3-desc2" style="margin-top: 1rem;">Now send any message to your bot from your Telegram
+                    account.</p>
+                <button id="btn-poll" aria-busy="false">Waiting for message...</button>
+                <div id="chat-id-result" style="margin-top: 1rem; color: var(--primary);"></div>
+            </div>
+
+            <!-- Step 4: Dashboard -->
+            <div id="step-4" class="step">
+                <h3 id="step4-title">Step 4: Web Dashboard</h3>
+                <fieldset>
+                    <label for="enable-dashboard">
+                        <input type="checkbox" id="enable-dashboard" role="switch" checked>
+                        <span id="label-dashboard">Enable Web Dashboard</span>
+                    </label>
+                    <small id="desc-dashboard">If enabled, visual traffic statistics will be available at the server
+                        address (port 5005).</small>
+                </fieldset>
+
+                <div style="margin-top: 1.5rem; max-width: 300px;">
+                    <label for="monthly-limit" id="label-monthly-limit">Monthly Traffic Limit (GB)</label>
+                    <input type="number" id="monthly-limit" value="250" min="1" step="any" required>
+                </div>
+
+                <button id="btn-step4-next" style="margin-top: 2rem;">Next</button>
+            </div>
+
+            <!-- Step 5: Systemd Autostart -->
+            <div id="step-5" class="step">
+                <h3 id="step5-title">Step 5: Autostart on Boot</h3>
+                <p id="step5-desc">Install a systemd service so the monitor starts automatically on every boot (Linux /
+                    Raspberry Pi OS only).</p>
+                <fieldset>
+                    <label for="enable-systemd">
+                        <input type="checkbox" id="enable-systemd" role="switch">
+                        <span id="label-systemd">Create systemd service</span>
+                    </label>
+                    <small id="desc-systemd">Requires sudo access on the device running this setup server.</small>
+                </fieldset>
+                <div id="systemd-result" style="margin-top: 1rem; color: var(--primary);"></div>
+                <button id="btn-save" style="margin-top: 2rem;">Save and Finish</button>
+            </div>
+
+            <!-- Step 6: Success -->
+            <div id="step-6" class="step" style="text-align: center;">
+                <h3 id="step6-title">✅ Setup Completed!</h3>
+                <p id="step6-desc">Configuration settings saved successfully.</p>
+                <p id="step6-desc2">You can close this window and start the application in your terminal:</p>
+                <code>python main.py</code>
+                <code id="step6-systemd-hint" style="display: none; margin-top: 1rem;"></code>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/static/setup.js"></script>
+</body>
+
+</html>

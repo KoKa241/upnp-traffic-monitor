@@ -1,0 +1,11 @@
+data/
+mockup/
+
+.env
+chat_id.txt
+traffic.db
+.DS_Store
+
+**/__pycache__/
+*.pyc
+venv/

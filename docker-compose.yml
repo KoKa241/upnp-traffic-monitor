@@ -1,0 +1,17 @@
+services:
+  traffic-monitor:
+    build: .
+    container_name: traffic-monitor
+    # IMPORTANT: network_mode: "host" is required for UPnP device discovery
+    # because UPnP uses multicast (SSDP) over UDP on the local network.
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s

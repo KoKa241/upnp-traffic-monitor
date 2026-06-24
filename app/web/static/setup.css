@@ -1,0 +1,28 @@
+body {
+    padding-top: 2rem;
+}
+.step {
+    display: none;
+}
+.step.active {
+    display: block;
+}
+.card {
+    padding: 2rem;
+    border-radius: 8px;
+    background: var(--card-background-color);
+}
+.action-list {
+    font-family: monospace;
+    font-size: 0.9em;
+    margin-top: 0.5rem;
+    color: var(--muted-color);
+}
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
